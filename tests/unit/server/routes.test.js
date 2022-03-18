@@ -46,9 +46,57 @@ describe('#Routes - test api response', () => {
     expect(mockFileStream.pipe).toHaveBeenCalledWith(params.response)
   })
 
-  it.todo(`GET /controller should response with ${pages.controllerHTML} file`)
+  it(`GET /controller should response with ${pages.controllerHTML} file`, async () => {
+    const params = TestUtil.defaultHandleParams()
+    params.request.method = 'GET'
+    params.request.url = '/controller'
+    const mockFileStream = TestUtil.generateReadableStream(['data'])
+
+    jest.spyOn(
+      Controller.prototype, 
+      Controller.prototype.getFileStream.name
+    ).mockResolvedValue({ 
+      stream: mockFileStream, 
+    })
+
+    jest.spyOn(
+      mockFileStream,
+      "pipe"
+    ).mockReturnValue()
+
+    await handler(...params.values())
+
+    expect(Controller.prototype.getFileStream).toBeCalledWith(pages.controllerHTML)
+    expect(mockFileStream.pipe).toHaveBeenCalledWith(params.response)
+  })
+
+  // TODO
   it.todo(`GET /file.ext should response with file stream`)
-  it.todo(`GET /unknown should inexistent route 404`)
+
+  // TODO
+  it(`GET /unknown should inexistent route 404`, async () => {
+    const params = TestUtil.defaultHandleParams()
+    params.request.method = 'GET'
+    params.request.url = '/inexistentRoute'
+    const mockFileStream = TestUtil.generateReadableStream(['data'])
+
+    jest.spyOn(
+      Controller.prototype, 
+      Controller.prototype.getFileStream.name
+    ).mockResolvedValue({ 
+      stream: mockFileStream, 
+    })
+
+    jest.spyOn(
+      mockFileStream,
+      "pipe"
+    ).mockReturnValue()
+
+    await handler(...params.values())
+
+    expect(Controller.prototype.getFileStream).toBeCalledWith('/inexistentRoute')
+    expect(params.response.writeHead).toBeCalledWith(404, { 'Location': location.home })
+  })
 
   describe('exceptions', () => {
     it.todo('should respond with 404 in a inexistent file')
