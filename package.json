@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@jest/globals": "^27.5.1",
     "jest": "^27.5.1",
     "nodemon": "2"
   },
