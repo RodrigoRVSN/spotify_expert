@@ -5,7 +5,7 @@ const defaultConfig = {
     "text",
     "lcov",
   ],
-  coverage: {
+  coverageThreshold: {
     global: {
       branch: 100,
       functions: 100,
