@@ -1,0 +1,10 @@
+heroku.yml
+npm i -g heroku
+heroku login
+
+git repo push
+
+heroku apps:create spotify-radio
+git remote -v
+heroku stack:set container
+git push heroku main
