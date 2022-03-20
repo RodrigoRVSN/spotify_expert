@@ -1,4 +1,4 @@
-import {join, extname} from 'path'
+import path, {join, extname} from 'path'
 import fs from 'fs'
 import fsPromises from 'fs/promises'
 import streamPromises from 'stream/promises'
@@ -10,7 +10,10 @@ import childProcess from 'child_process'
 import {logger} from "./util.js";
 import { once } from 'events'
 
-const { dir: { publicDirectory }, constants: { fallbackBitRate, englishConversation, bitRateDivisor } } = config
+const { 
+  dir: { publicDirectory, fxDirectory }, 
+  constants: { fallbackBitRate, englishConversation, bitRateDivisor, audioMediaType, songVolume, fxVolume }
+} = config
 
 export class Service {
   constructor() {
@@ -94,7 +97,7 @@ export class Service {
     const throttleTransform = this.throttleTransform = new Throttle(bitRate)
     const songReadable = this.currentReadable = this.createFileStream(this.currentSong)
 
-    streamPromises.pipeline(
+    return streamPromises.pipeline(
         songReadable,
         throttleTransform,
         this.broadCast()
@@ -122,5 +125,64 @@ export class Service {
       stream: this.createFileStream(name),
       type
     }
+  }
+
+  async readFxByName(fxName) {
+    const songs = await fsPromises.readdir(fxDirectory)
+    const chosenSong = songs.find(filename => filename.toLowerCase().includes(fxName))
+    if(!chosenSong) return Promise.reject(`🚧 the song ${fxName} wasn't found!`)
+    return path.join(fxDirectory, chosenSong)
+  }
+
+  appendFxStream(fx) {
+    const throttleTransformable = new Throttle(this.currentBitRate)
+    streamPromises.pipeline(
+      throttleTransformable,
+      this.broadCast()
+    )
+
+    const unpipe = () => {
+      const transformStream = this.mergeAudioStreams(fx, this.currentReadable)
+      this.throttleTransform = throttleTransformable
+      this.currentReadable = transformStream
+      this.currentReadable.removeListener('unpipe', unpipe)
+
+      streamPromises.pipeline(
+        transformStream,
+        throttleTransformable
+      )
+    }
+
+    this.throttleTransform.on('unpipe', unpipe)
+    this.throttleTransform.pause()
+    this.currentReadable.unpipe(this.throttleTransform)
+  }
+
+  mergeAudioStreams(song, readable) {
+    const transformStream = PassThrough()
+    const args = [
+      '-t', audioMediaType,
+      '-v', songVolume,
+      '-m', '-',
+      '-t', audioMediaType,
+      '-v', fxVolume,
+      song,
+      '-t', audioMediaType,
+      '-'
+    ]
+
+    const { stdout, stdin } = this._executeSoxCommand(args)
+
+    streamPromises.pipeline(
+      readable, 
+      stdin
+    )
+
+    streamPromises.pipeline(
+      stdout, 
+      transformStream
+    )
+    
+    return transformStream
   }
 }
