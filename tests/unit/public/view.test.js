@@ -24,6 +24,11 @@ describe('#View - test suite for presentation layer', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     jest.clearAllMocks()
+
+    jest.spyOn(
+      document,
+      "getElementById"
+    ).mockReturnValue(makeBtnElement())
   })
 
   it('#changeCommandBtnsVisibility - should add unassigned class with hidden=true param and reset onclick', () => {
