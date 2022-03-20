@@ -4,7 +4,9 @@ heroku login
 
 git repo push
 
-heroku apps:create spotify-radio
+heroku apps:create spotify-expert
 git remote -v
 heroku stack:set container
 git push heroku main
+heroku open
+heroku logs -t -a spotify-expert
