@@ -10,3 +10,6 @@ heroku stack:set container
 git push heroku main
 heroku open
 heroku logs -t -a spotify-expert
+
+heroku apps:delete
+rm -rf .git

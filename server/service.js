@@ -47,7 +47,7 @@ export class Service {
     return childProcess.spawn('sox', args)
   }
 
-  async getBitRage(song) {
+  async getBitRate(song) {
     try {
       const args = [
           '--i', // info
@@ -93,7 +93,7 @@ export class Service {
 
   async startStreamming() {
     logger.info(`Starting with ${this.currentSong}`)
-    const bitRate = this.currentBitRate = (await this.getBitRage((this.currentSong)) / bitRateDivisor)
+    const bitRate = this.currentBitRate = (await this.getBitRate(this.currentSong) / bitRateDivisor)
     const throttleTransform = this.throttleTransform = new Throttle(bitRate)
     const songReadable = this.currentReadable = this.createFileStream(this.currentSong)
 
@@ -112,6 +112,7 @@ export class Service {
     const fullFilePath = join(publicDirectory, file)
     await fsPromises.access(fullFilePath)
     const fileType = extname(fullFilePath)
+
     return {
       type: fileType,
       name: fullFilePath
@@ -119,7 +120,7 @@ export class Service {
   }
 
   async getFileStream(file) {
-    const {name, type} = await this.getFileInfo(file)
+    const { name, type } = await this.getFileInfo(file)
 
     return{
       stream: this.createFileStream(name),

@@ -31,12 +31,15 @@ services:
   test-watch:
     image: spotify-radio
     build: .
+    # porta http 4000
     environment:
       PORT: 4000
+    # roda o comando de testes
     command:
       - npm
       - run
       - test:watch
+    # isola o node_modules do workdir para garantir o live-reload
     volumes:
       - .:/spotify-radio
       - node_modules:/spotify-radio/node_modules

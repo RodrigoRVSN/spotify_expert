@@ -1,9 +1,13 @@
 import { Controller } from "./controller.js"
 import config from "./config.js"
 import { logger } from "./util.js"
-import {once} from "events";
+import { once } from "events";
 
-const { location, pages: { homeHTML, controllerHTML }, constants: { CONTENT_TYPE } } = config
+const { 
+  location, 
+  pages: { homeHTML, controllerHTML }, 
+  constants: { CONTENT_TYPE } 
+} = config
 
 const controller = new Controller()
 

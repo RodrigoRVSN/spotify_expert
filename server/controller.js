@@ -35,6 +35,7 @@ export class Controller {
 
   createClientStream() {
     const { id, clientStream } = this.service.createClientStream()
+
     const onClose = () => {
       logger.info(`Closing info of ID ${id}`)
       this.service.removeClientStream(id)
